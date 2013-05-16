@@ -1,0 +1,126 @@
+﻿using System.Drawing;
+using System.Windows.Forms;
+using System.Xml.Serialization;
+using System.IO;
+using System;
+
+namespace woanware
+{
+    /// <summary>
+    /// 
+    /// </summary>
+    public class Settings
+    {
+        #region Member Variables
+        public Point FormLocation { get; set; }
+        public Size FormSize { get; set; }
+        public FormWindowState FormState { get; set; }
+        public bool UseDecimal { get; set; }
+        private const string FILENAME = "Settings.xml";
+        #endregion
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        public string Load()
+        {
+            try
+            {
+                string path = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), @"woanware\" + Application.ProductName + @"\");
+
+                if (File.Exists(System.IO.Path.Combine(path, FILENAME)) == false)
+                {
+                    return string.Empty;
+                }
+
+                XmlSerializer serializer = new XmlSerializer(typeof(Settings));
+                if (File.Exists(System.IO.Path.Combine(path, FILENAME)) == false)
+                {
+                    return "Cannot locate configuration file: " + System.IO.Path.Combine(path, FILENAME);
+                }
+
+                FileInfo info = new FileInfo(System.IO.Path.Combine(path, FILENAME));
+                using (FileStream stream = info.OpenRead())
+                {
+                    Settings settings = (Settings)serializer.Deserialize(stream);
+
+                    FormLocation = settings.FormLocation;
+                    FormSize = settings.FormSize;
+                    FormState = settings.FormState;
+                    FormState = settings.FormState;
+                    UseDecimal = settings.UseDecimal;
+
+                    return string.Empty;
+                }
+            }
+            catch (FileNotFoundException fileNotFoundEx)
+            {
+                return fileNotFoundEx.Message;
+            }
+            catch (UnauthorizedAccessException unauthAccessEx)
+            {
+                return unauthAccessEx.Message;
+            }
+            catch (IOException ioEx)
+            {
+                return ioEx.Message;
+            }
+            catch (Exception ex)
+            {
+                return ex.Message;
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        public string Save()
+        {
+            try
+            {
+                string path = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), @"woanware\" + Application.ProductName + @"\");
+                if (System.IO.Directory.Exists(path) == false)
+                {
+                    System.IO.Directory.CreateDirectory(path);
+                }
+
+                XmlSerializer serializer = new XmlSerializer(typeof(Settings));
+                using (StreamWriter writer = new StreamWriter(System.IO.Path.Combine(path, FILENAME), false))
+                {
+                    serializer.Serialize((TextWriter)writer, this);
+                    return string.Empty;
+                }
+            }
+            catch (FileNotFoundException fileNotFoundEx)
+            {
+                return fileNotFoundEx.Message;
+            }
+            catch (UnauthorizedAccessException unauthAccessEx)
+            {
+                return unauthAccessEx.Message;
+            }
+            catch (IOException ioEx)
+            {
+                return ioEx.Message;
+            }
+            catch (Exception ex)
+            {
+                return ex.Message;
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public bool FileExists
+        {
+            get
+            {
+                string path = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), @"woanware\" + Application.ProductName + @"\");
+                return File.Exists(System.IO.Path.Combine(path, FILENAME));
+            }
+        }
+    }
+}
